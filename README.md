@@ -51,7 +51,31 @@ Mining would happen through a variety of transactions:
 * Generating a Relay Lineup, with proof of work
 * Generating transaction prices (with proof of work?)
 
-All of these would be written into the blockchain, and verified by every host.
+All of these would be written into the blockchain, and verified by every host on that chain. The actual computations (step 6 above) would not be.
+
+
+Bounty Prices
+=============
+
+In general, the goals for the reward system are to:
+
+* Incentivize participation. It should make financial sense for people to make computers available to do work for the network.
+* Disincentivize fraudulent activity. 
+
+There's a couple ways this could go. The price of a bounty could be just based on the "cost" of a transaction:
+
+* Number of chained parties
+* Trustedness of chained parties
+
+Or, it could be a simple auction-based system, where a party makes a series of offers until one is accepted.
+
+Or, another possibility that's appealing to me is that you can actually buy tokens that are redeemable for specific services. So, I could purchase tokens and assign them for distributing, say, my album. These could potentially have built-in appreciation so that I could purchase in advance, say, 100 downloads a day. Then anyone could download those for free, literally for the rest of time.
+
+That, of course, opens up a some trouble. Namely: as a provider of that data, the incentive is for you to request those files yourself, and send them to yourself.
+
+So, in order to head that off, perhaps these incentives should be disbursed to people, not just for distributing the data, but for *being available* to distribute it.  So, people sign up for the pool, and whether or not the data is requested, the funds are disbursed to the pool.
+
+Of course, if you say you're available and you fail to deliver the data then you would be demoted from the pool, or dropped to a lower priced tier.
 
 
 Blocktree
