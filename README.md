@@ -43,7 +43,7 @@ The network would collaborate to maintain a ledger of how reliable nodes were at
 
 
 Mining
-======
+------
 
 Mining would happen through a variety of transactions:
 
@@ -55,7 +55,7 @@ All of these would be written into the blockchain, and verified by every host on
 
 
 Bounty Prices
-=============
+-------------
 
 In general, the goals for the reward system are to:
 
@@ -79,7 +79,7 @@ Of course, if you say you're available and you fail to deliver the data then you
 
 
 Blocktree
-=========
+---------
 
 In order to keep the blockchain size manageable, while still allowing large volumes of data and transactions to be circulated, the blockchain is actually a binary tree of blockchains which represent an enormous address space. 
 
