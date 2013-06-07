@@ -125,3 +125,13 @@ Questions:
 
 * It's not clear how the branches should be split up. Perhaps they can just branch arbitrarily and we let market forces prune them. 
 * Or maybe there's a way to allow for arbitrary precision and arbitrary branch sizes. So that the tree becomes a kind of a continuous data triangle.
+
+
+Anonymity
+---------
+
+Ideally you could send data to another person and pay for it without the fact that you communicated with that person being discoverable by looking at the blockchain.
+
+To do this, creating a block may have to require each of the working parties presenting signed work, a third party then batching that work up into a block and divying out rewards, then each of the working parties signing off on the block (agreeing that the rewards are fairly calculated) and then (and only then) is the block valid and ready to be broadcast and written into the blockchain.
+
+Essentially, each block would be a tumbler.
