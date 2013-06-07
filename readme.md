@@ -1,9 +1,9 @@
 Bitver.se
 =========
 
-**WORK IN PROGRESS**
+Trustless key/value store and compute engine.
 
-Key/value store.
+**WORK IN PROGRESS**
 
 Blockchain is a tree. Mining incentives are such that branches closer to the root are more heavily mirrored and thus more costly to spoof. Anything below a certain threshold distance to the root are considered "permanent".
 
