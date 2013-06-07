@@ -66,6 +66,7 @@ Keyspaces can be purchased, with a validation script attached. This script might
 * which conform to the laws of physics in a game world
 * which are 140 characters or less and put in sub-keyspaces (a la Twitter handles)
 
+It's really up to the purchaser. They could just throw an arbitrary javascript function into access.js at the root of their keyspace perhaps.
 
 Mining
 ------
