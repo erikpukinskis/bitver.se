@@ -5,6 +5,13 @@ Trustless key/value store and compute engine.
 
 **WORK IN PROGRESS**
 
+Requirements
+------------
+
+For something like this to be successful it must:
+
+* Work even if you are the only person you know on it
+* Make it possible to find cool stuff even if you know nothing about the universe
 
 Benefits
 --------
@@ -135,3 +142,14 @@ Ideally you could send data to another person and pay for it without the fact th
 To do this, creating a block may have to require each of the working parties presenting signed work, a third party then batching that work up into a block and divying out rewards, then each of the working parties signing off on the block (agreeing that the rewards are fairly calculated) and then (and only then) is the block valid and ready to be broadcast and written into the blockchain.
 
 Essentially, each block would be a tumbler.
+
+Possible implemenation technologies
+-----------------------------------
+
+* [WebRTC](http://www.webrtc.org/)
+
+Related
+-------
+
+* http://www.i2p2.de/
+* https://gnunet.org
