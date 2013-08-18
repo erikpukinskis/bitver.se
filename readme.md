@@ -378,11 +378,20 @@ The output of that program would be something like this:
 
 That would allow you to see how much money you'd need for a certain reliability. You could also leave out the reliability and provide a price range and find out what kind of reliability you can get for what you want to pay. I suspect that will be a common way to monetize "browsing". You just volunteer that every 10 seconds you'll pay for whatever you're looking at as long as it's under a certain amount... say, 1 ver.
 
+Anonymity
+---------
+
+Ideally you could send data to another person and pay for it without the fact that you communicated with that person being discoverable by looking at the blockchain.
+
+To do this, creating a block may have to require each of the working parties presenting signed work, a third party then batching that work up into a block and divying out rewards, then each of the working parties signing off on the block (agreeing that the rewards are fairly calculated) and then (and only then) is the block valid and ready to be broadcast and written into the blockchain.
+
+Essentially, each block would be a tumbler.
+
 ***
 ***
 ***
 
-Older stuff
+Misc Older stuff
 ===========
 
 A general principle for Bitver.se is that it provides vastness through infinite divisibility *not* expandability. The sensation of space comes from seeing a universe within a universe.
@@ -408,19 +417,11 @@ Keyspaces can be purchased, with a validation script attached. This script might
 
 It's really up to the purchaser. They could just throw an arbitrary javascript function into access.js at the root of their keyspace perhaps.
 
-Questions:
+Questions
+---------
 
 * It's not clear how the branches should be split up. Perhaps they can just branch arbitrarily and we let market forces prune them. 
 * Or maybe there's a way to allow for arbitrary precision and arbitrary branch sizes. So that the tree becomes a kind of a continuous data triangle.
-
-Anonymity
----------
-
-Ideally you could send data to another person and pay for it without the fact that you communicated with that person being discoverable by looking at the blockchain.
-
-To do this, creating a block may have to require each of the working parties presenting signed work, a third party then batching that work up into a block and divying out rewards, then each of the working parties signing off on the block (agreeing that the rewards are fairly calculated) and then (and only then) is the block valid and ready to be broadcast and written into the blockchain.
-
-Essentially, each block would be a tumbler.
 
 Possible implemenation technologies
 -----------------------------------
