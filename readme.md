@@ -31,17 +31,17 @@ Bounties
     
 A bouty just means you're putting up some money for the network to do something. The bounty has several required properties. 
 
-The **program** is a reference to what you want people to do. In this you're asking for the `scots-proverbs` program. `21` is just a reference to where the program is stored. That's discussed in the "Blocktree" chapter later on.
+**program** is a reference to what you want people to do. In this you're asking for the `scots-proverbs` program. `21` is just a reference to where the program is stored. That's discussed in the "Blocktree" chapter later on.
 
-The **root** is a reference to where in the Blocktree the bounty can be fulfilled.
+**root** is a reference to where in the Blocktree the bounty can be fulfilled.
 
-**Checks** is the number of times the results of the program need to be verified.
+**checks** is the number of times the results of the program need to be verified.
 
-The **count** is how many times you're paying for the program to run.
+**count** is how many times you're paying for the program to run.
 
-** Expiration ** is the number of minutes you want the bounty to run for.
+**expiration** is the number of minutes you want the bounty to run for.
 
-And **inputs** are the addresses for the money ('vers') you're using to pay for the bounty and the amount to take from each one.
+**inputs** are the addresses for the money ('vers') you're using to pay for the bounty and the amount to take from each one.
 
 When you want to pay for something to happen, you just sign one of these, and broadcast it to the network.
 
