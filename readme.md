@@ -237,13 +237,11 @@ The Bitverse also has a kind of "financial API" which lets you give your money a
     
     function() {
         var addresses = bitverse.readlines('12/fountain');
-        var balance = bitverse.balance('dj191');
-        var payout = balance / 1000 / addresses.length;
+        var payout = bitverse.balance() / 1000 / addresses.length;
         
         var commands = addresses.map(function(address) {
             return {
                 cmd: 'pay',
-                from: 'dj191',
                 to: address,
                 amt: payout
             };
@@ -258,7 +256,7 @@ The Bitverse also has a kind of "financial API" which lets you give your money a
         return commands;
     }
 
-Then if you created a bounty that requrired a lot of checks:
+Then if you created a bounty that requrired a lot of checks[3]:
 
     bounty: {
       program: '42/fountain-payout',
@@ -269,13 +267,76 @@ Then if you created a bounty that requrired a lot of checks:
       inputs: [
         {source: '91vv', amt: 79}
       ],
-      permissions: {
-        wallets: ['dj191']
-      }
+      payout: 9,
     }
 
-This bounty has a 'permissions' property, which specifies that the program is allowed to draw from a given wallet. This is of course quite dangerous is you put your bounty in a less reliable branch of the blocktree. But if you require sufficient checks it should be, for all intents and purposes, un-spoof-able.
+Note this bounty has a `payout` property, which specifies how much of the inputs should go to pay out bounties.  The rest of the inputs are available *to the script*. Then, if someone signs the output of the script and it has some pay commands in it, the money will be transferred:
 
+    receipt: {
+        request: ...,
+        checks: ...,
+        commands: [
+            {
+                cmd: 'pay',
+                from: 'dj191',
+                to: 'k100',
+                amt: 4
+            }
+        ]
+        signatures: [commands signed by all the checkers],
+    }
+
+This is of course quite dangerous if you put your bounty in a less reliable branch of the blocktree. If you're only requiring a single confirmation on this bounty then someone could probably fairly easily nab your vers fraudulently. But if you require sufficient checks it should be, for all intents and purposes, un-spoof-able.
+
+<small>[3] You'd also need a bounty to pay for all of the times 42/fountain-payout has to read from and write to 12/fountain. But that's left as an exercise for the reader.</small>
+
+Micropayments
+-------------
+
+One could also just pay to seed a file to the network, and then let their audience pay for their own distribution. People could even pre-orderers:
+
+    bounty {
+        program: '59/eriks-zookeeper-lovemonster',
+        checks: 10,
+        inputs: [
+            {source: '0f00', amt: 1092}
+        ],
+        payout: 92,
+        
+        audience: 'me',
+    } (signature jj68)
+    
+    request {
+        program: '59/eriks-zookeeper-lovemonster',
+        checks: 10
+    } (signed by the same private key as the bounty)
+    
+Note there is no expiration on the bounty. Then when the album was ready, the producer could just seed it to some of those pre-orderers: 
+
+    result {
+        request: ...,
+        data: 'this is where the actual album data would go, 
+               but probably tacked on as a binary payload.'
+        by: 'eriks'
+    } (signature 1dk0)
+
+Then the pre-orderer can fulfill *other* pre-orderers, and those pre-orderers can fulfill *other* pre-orderers and the rest of the distribution happens within the network.
+
+But you will also notice the bounty only releases 92 of the 1092 vers provided. What this allows the program to do is pay itself some money. Effectively this let's the creator build in a price:
+
+    59/eriks-zookeeper-lovemonster:
+    
+    function() {
+    
+        return {
+            payload: [somehow the data payload is attached],
+            commands: [{
+                cmd: 'pay',
+                to: 'j2ak',
+                amt: bitverse.balance()
+            }]
+        }
+    }
 
 Fulfiller mask difficulty
 -------------------------
@@ -292,40 +353,39 @@ In order for this to work, these have to be limited somehow, so you can't just b
 Estimating how much you'll need to pay
 -------------------------------------
 
-I think this could just be a random program that runs on the network and estimates how much jobs should cost:
+A useful program would be one that estimates how much jobs should cost:
 
-<when>Once you send the bounty to the network</when>, <then>you'll get back a list of quotes</then>:
+You could send an unsigned bounty to it, and it would send you back a list of probabilities:
 
-    quotes: [
-      {signature: '2mv903', root: 128, price: 94, reliability: 0.62, checks: 2},
-      {signature: '39fj903, root: 101, price: 93, reliability: 0.60, checks: 2'},
-      {signature: 'j9d292', root: 113, price: 79, reliability: 0.52, checks: 1}
+    request: {
+        program: '2/estimate',
+        ...
+        reliability: 0.85-0.95,
+        bounty: {
+            program: '21/scots-proverbs',
+            checks: 4,
+            count: 1,
+            ...
+        }
+    }
+
+The output of that program would be something like this:
+
+    reliabilities: [
+        {reliability: 0.9, price: 30, root: 113},
+        {reliability: 0.95, price: 45, root: 90}
     ]
 
-There's a bunch of pieces of these quotes. We'll get into all of them in detail, but to summarize:
+That would allow you to see how much money you'd need for a certain reliability. You could also leave out the reliability and provide a price range and find out what kind of reliability you can get for what you want to pay. I suspect that will be a common way to monetize "browsing". You just volunteer that every 10 seconds you'll pay for whatever you're looking at as long as it's under a certain amount... say, 1 ver.
 
-The signature is a unique *identifier* for the quote
-The root is *where* the bounty will be carried out
-The price is *how much* you'd have to pay
-The reliability is an estimate of how *durably* the network will be able to carry out the bounty
-And the checks are the number of *double-checks* that are guaranteed to be performed.
-
-
-
-
-
-
-
-
-
-
-
-
+***
+***
+***
 
 Older stuff
 ===========
 
-* A general principle for Bitver.se is that it provides vastness through infinite divisibility *not* expandability. The sensation of space comes from seeing a universe within a universe.
+A general principle for Bitver.se is that it provides vastness through infinite divisibility *not* expandability. The sensation of space comes from seeing a universe within a universe.
 
 
 Benefits
