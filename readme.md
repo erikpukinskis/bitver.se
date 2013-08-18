@@ -3,10 +3,17 @@ Bitver.se
 
 **is a distributed key/value store and compute engine.**
 
-Let's say you want to provide a service that will give people a Scottish proverb. You compile a database of 10,000 proverbs and write a little program that gives you a proverb if you give it a number between 1 and 10,000.
+Let's say you want to provide a service that will give people a Scottish proverb. You compile a database of 10,000 proverbs and write a little program that gives you a proverb if you give it a number between 1 and 10,000:
 
-The first thing you need to do is put out <identify>a bounty</identify> for your proverb quoter.
+    function(number) {
+        return [
+            "Ye maun tak the will for the deed",
+            ...
+            "A close mouth catches nae flees"
+        ][number];
+    }
 
+You save that into the Bitverse with at `21/scots-proverbs`. But before we get into how that works, we have to talk about bounties.
 
 Bounties
 --------
