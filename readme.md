@@ -61,7 +61,7 @@ Bounty Confirmation
 
 When a bounty is signed, it needs to be written into the blocktree. Bounties all go into Branch 1, which is basically the "accounting" branch for Bitverse. It's very similar to the Bitcoin blockchain, except miners do a little extra work to verify that the bounties are valid.
 
-<when>When someone puts your bounty into a block</when>, it's considered active and the money attached is considered spent. <when>If the balance of your wallet (91vv) was 80 verscoins</when>, <when>and you broadcast the above bounty</when>, <then>it does down to 1.</then>.
+<when>When someone puts your bounty into a block</when>, it's considered active and the money attached is considered spent. <when>If the balance of your wallet (91vv) was 80 vers</when>, <when>and you broadcast the above bounty</when>, <then>it does down to 1.</then>.
 
 The block stores the bounty more or less as-is, but does add one additional property:
 
