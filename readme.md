@@ -20,7 +20,7 @@ Bounties
 
     bounty: {
       program: '21/scots-proverbs',
-      root: 113,
+      branch: 113,
       checks: 1,
       count: 100
       expiration: 1440
@@ -33,7 +33,7 @@ A bouty just means you're putting up some money for the network to do something.
 
 **program** is a reference to what you want people to do. In this you're asking for the `scots-proverbs` program. `21` is just a reference to where the program is stored. That's discussed in the "Blocktree" chapter later on.
 
-**root** is a reference to where in the Blocktree the bounty can be fulfilled.
+**branch** is a reference to where in the Blocktree the bounty can be fulfilled.
 
 **checks** is the number of times the results of the program need to be verified.
 
@@ -48,18 +48,18 @@ When you want to pay for something to happen, you just sign one of these, and br
 The Blocktree
 -------------
 
-Every piece of information in the Bitverse lives in what looks like the roots of a tree. The very top of the root system, the big central trunk, is Root 1. The branches below that are roots 2 and 3, and below those are 4, 5, 6, and 7.
+Every piece of information in the Bitverse lives in what looks like the roots of a tree. The very top of the root system, the big central trunk, is Branch 1. The branches below that are branches 2 and 3, and below those are 4, 5, 6, and 7.
 
-Having all of these different roots is absolutely critical because they allow you to have a choice between expensive+durable information and cheap+transient information. 
+Having all of these different branches is absolutely critical because they allow you to have a choice between expensive+durable information and cheap+transient information. 
 
-At the top of the root system, in nodes with low numbers, any bounties that are funded are, for all intents and purposes, *permanent*. If you publish your poem in root 1, it's extraordinarily unlikely that anyone could ever prevent that distribution from happening. We'll describe how this works later, but someone would have to take control of more than half of the entire network in order to erase it.
+At the top of the root system, in branches with low numbers, any bounties that are funded are, for all intents and purposes, *permanent*. If you publish your poem in Branch 1, it's extraordinarily unlikely that anyone could ever prevent that distribution from happening. We'll describe how this works later, but someone would have to take control of more than half of the entire network in order to erase it.
 
-The deeper you go into the Bitverse, things become less and less durable. If you publish your poem in root 10,000, it will probably last a day or so, but it will almost certainly disappear within the week.
+The deeper you go into the Bitverse, things become less and less durable. If you publish your poem in Branch 10,000, it will probably last a day or so, but it will almost certainly disappear within the week.
 
 Bounty Confirmation
 -------------------
 
-When a bounty is signed, it needs to be written into the blocktree. Bounties all go into Root 1, which is basically the "accounting" root for Bitverse. It's very similar to the Bitcoin blockchain, except miners do a little extra work to verify that the bounties are valid.
+When a bounty is signed, it needs to be written into the blocktree. Bounties all go into Branch 1, which is basically the "accounting" branch for Bitverse. It's very similar to the Bitcoin blockchain, except miners do a little extra work to verify that the bounties are valid.
 
 <when>When someone puts your bounty into a block</when>, it's considered active and the money attached is considered spent. <when>If the balance of your wallet (91vv) was 80 verscoins</when>, <when>and you broadcast the above bounty</when>, <then>it does down to 1.</then>.
 
@@ -260,7 +260,7 @@ Then if you created a bounty that requrired a lot of checks[3]:
 
     bounty: {
       program: '42/fountain-payout',
-      root: 5,
+      branch: 5,
       checks: 10,
       count: 100
       expiration: 1440
@@ -347,7 +347,7 @@ This could happen by varying the size of the fulfiller pool and the length of a 
 
 But if you required the first 3 letters of the mask to match the fulfiller, then that brings the probability a given attacker could defraud you down to one in 46 thousand.
 
-In order for this to work, these have to be limited somehow, so you can't just buy total coverage of the bitmask. OR maybe make the bitmask algorithm something that can't be predicted so even with an army of drone identities you still can only control your tiny fraction of the Bitverse enthalpy. And to commit fraud against even modestly redundant roots would require half of the network for a long time. (I think? hope?)
+In order for this to work, these have to be limited somehow, so you can't just buy total coverage of the bitmask. OR maybe make the bitmask algorithm something that can't be predicted so even with an army of drone identities you still can only control your tiny fraction of the Bitverse enthalpy. And to commit fraud against even modestly redundant branches would require half of the network for a long time. (I think? hope?)
 
 
 Estimating how much you'll need to pay
@@ -372,8 +372,8 @@ You could send an unsigned bounty to it, and it would send you back a list of pr
 The output of that program would be something like this:
 
     reliabilities: [
-        {reliability: 0.9, price: 30, root: 113},
-        {reliability: 0.95, price: 45, root: 90}
+        {reliability: 0.9, price: 30, branch: 113},
+        {reliability: 0.95, price: 45, branch: 90}
     ]
 
 That would allow you to see how much money you'd need for a certain reliability. You could also leave out the reliability and provide a price range and find out what kind of reliability you can get for what you want to pay. I suspect that will be a common way to monetize "browsing". You just volunteer that every 10 seconds you'll pay for whatever you're looking at as long as it's under a certain amount... say, 1 ver.
