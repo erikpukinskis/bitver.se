@@ -1,0 +1,378 @@
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Arvo:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" />
+
+<style>
+
+body {
+  font-family: 'Arvo', serif;
+  background: #FAF5F8;
+  color: rgb(68, 68, 68);
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 12pt;
+  line-height: 18pt;
+  padding: 14px;
+}
+
+pre {
+  font-family: Menlo,Monaco,"Courier New",monospace;
+  font-size: 10pt;
+  border-radius: 5px;
+  background: #fafafa;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+}
+
+code {
+  color: #d14;
+  background: #f7f7f9;
+  padding: 3px 4px;
+  border: 1px solid #e1e1e8;
+}
+
+pre code, pre {
+  color: rgb(68, 68, 68);
+}
+
+pre code {
+  border: none;
+  background: none;
+  padding: 0;
+  line-height: 1.4em
+}
+
+
+#bitverse {
+  margin-bottom: -11pt;
+}
+
+</style>
+
+</head>
+<body>
+
+<a href="https://github.com/you"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+<h1 id="bitverse">Bitver.se</h1>
+<p><strong>is a distributed key/value store and compute engine.</strong></p>
+<p>Let's say you want to provide a service that will give people a Scottish proverb. You compile a database of 10,000 proverbs and write a little program that gives you a proverb if you give it a number between 1 and 10,000:</p>
+<pre><code>function(number) {
+    return [
+        "Ye maun tak the will for the deed",
+        ...
+        "A close mouth catches nae flees"
+    ][number];
+}
+</code></pre>
+<p>You save that into the Bitverse with at <code>21/scots-proverbs</code>. But before we get into how that works, we have to talk about bounties.</p>
+<h2 id="bounties">Bounties</h2>
+<pre><code>bounty: {
+  program: '21/scots-proverbs',
+  root: 113,
+  checks: 1,
+  count: 100
+  expiration: 1440
+  inputs: [
+    {source: '91vv', amt: 79}
+  ],      
+}
+</code></pre>
+<p>A bouty just means you're putting up some money for the network to do something. The bounty has several required properties. </p>
+<p><strong>program</strong> is a reference to what you want people to do. In this you're asking for the <code>scots-proverbs</code> program. <code>21</code> is just a reference to where the program is stored. That's discussed in the "Blocktree" chapter later on.</p>
+<p><strong>root</strong> is a reference to where in the Blocktree the bounty can be fulfilled.</p>
+<p><strong>checks</strong> is the number of times the results of the program need to be verified.</p>
+<p><strong>count</strong> is how many times you're paying for the program to run.</p>
+<p><strong>expiration</strong> is the number of minutes you want the bounty to run for.</p>
+<p><strong>inputs</strong> are the addresses for the money ('vers') you're using to pay for the bounty and the amount to take from each one.</p>
+<p>When you want to pay for something to happen, you just sign one of these, and broadcast it to the network.</p>
+<h2 id="the-blocktree">The Blocktree</h2>
+<p>Every piece of information in the Bitverse lives in what looks like the roots of a tree. The very top of the root system, the big central trunk, is Root 1. The branches below that are roots 2 and 3, and below those are 4, 5, 6, and 7.</p>
+<p>Having all of these different roots is absolutely critical because they allow you to have a choice between expensive+durable information and cheap+transient information. </p>
+<p>At the top of the root system, in nodes with low numbers, any bounties that are funded are, for all intents and purposes, <em>permanent</em>. If you publish your poem in root 1, it's extraordinarily unlikely that anyone could ever prevent that distribution from happening. We'll describe how this works later, but someone would have to take control of more than half of the entire network in order to erase it.</p>
+<p>The deeper you go into the Bitverse, things become less and less durable. If you publish your poem in root 10,000, it will probably last a day or so, but it will almost certainly disappear within the week.</p>
+<h2 id="bounty-confirmation">Bounty Confirmation</h2>
+<p>When a bounty is signed, it needs to be written into the blocktree. Bounties all go into Root 1, which is basically the "accounting" root for Bitverse. It's very similar to the Bitcoin blockchain, except miners do a little extra work to verify that the bounties are valid.</p>
+<p><when>When someone puts your bounty into a block</when>, it's considered active and the money attached is considered spent. <when>If the balance of your wallet (91vv) was 80 verscoins</when>, <when>and you broadcast the above bounty</when>, <then>it does down to 1.</then>.</p>
+<p>The block stores the bounty more or less as-is, but does add one additional property:</p>
+<pre><code>bounty {
+  ...
+  fulfillerMask: "br",
+  ...
+}
+</code></pre>
+<p>The fulfillerMask is a mask that determines who can serve as a "check" for fulfilling the bounty as we'll see in the next section.</p>
+<h2 id="bounty-fulfillment">Bounty Fulfillment</h2>
+<p>A bounty with zero checks can be fulfilled without any double-checking. It's the absolute lowest of the low in terms of reliability. If you put out a zero-check bounty for distributing your scots proverbs, anyone could just offer to fulfill your bounty, but instead of sending the actual proverbs they could just send random words, and they'd still get a share of bounty[1].</p>
+<p><small>[1] This is discouraged, since they could potentially take a hit to their reputation by doing this, making it harder for them to earn future bounties. But as the publisher or a recipient, you would have no way to know whether you actually got a proper proverb</small></p>
+<p>The way Bitverse solves this problem is by checking results through a series of "checks". Our bounty specifies two checks, so in order to get a share of the bounty, the following would need to happen:</p>
+<p>First, someone broadcasts a request for proverb 7777 to the branch that has the bounty (113):</p>
+<pre><code>request: {
+  program: '21/scots-proverbs',
+  checks: 1,
+
+  proverb: 7777
+} (signature dj91)
+</code></pre>
+<p>The only required properties for a request are the program and the number of checks, but for <code>scots-proverbs</code> you also need to provide the proverb number.</p>
+<p>Next, a fulfiller ('bradley') who is mining on 113 obtains the program, runs it, generating a proverb, signs the proverb and broadcasts it to the network:</p>
+<pre><code>result: {
+    request: 'dj91',
+    hashedData: 'o00r'
+    by: 'bradley'
+} (signature f09a)
+</code></pre>
+<p>Note that only a fulfiller whose identifier ('bradley') matches the lineup mask is allowed to do this.</p>
+<p>Then, another miner who matches the mask ('brenda') does the same thing, grabbing the proverbs and looking up the correct one. If it matches the one from bradley, they take bradley's signature, bundle it with the result, and send it to the requester:</p>
+<pre><code>result {
+    request: 'dj91',
+    hashedData: 'o00r',
+    data: 'Our ain reek's better than ither folk's fire',
+    checks: [
+        {'bradley': 'f09a'}
+    ]
+} (signature fk01)
+</code></pre>
+<p>The requester then broadcasts a receipt to the rest of 113:</p>
+<pre><code>receipt {
+    request: 'dj91',
+    checks: [
+        {bradley: 'f09a'},
+        {brenda: 'fk01'}
+    ]
+}
+</code></pre>
+<p>I'm not sure how the signatures for all this would work, but basically the receipt would have to be signed in such a way that you could tell that bradley and brenda both signed the same data and the requester signed those signatures.</p>
+<p>At that point, the receipt can be incorporated into the blockchain and the bounty is distributed between bradley, brenda, and the requester.</p>
+<p>There are a number of important things happening here.</p>
+<h4 id="tracking-only-receipts">Tracking only receipts</h4>
+<p>This system would never work if all of the data getting process <em>had</em> to be broadcast to the network and stored in the blocktree. The blocktree, even at the lowest levels, is at least somewhat permanent, and there's just not enough storage in the world to store everyone's transient data. So the results of the program are passed to the recipient and the only thing stored in these blockchains is the receipt.</p>
+<h4 id="fulfiller-masking">Fulfiller masking</h4>
+<p>Bitverse identities can be created unlimitedly[2], and so without the fulfiller mask, anyone could just generate three identities, have one request the proverb, a second one sign an empty result, a third one "verify" that empty result, and then have the first one generate the receipt and then all share the bounty, <em>without ever having even downloaded the program, let alone run it</em>.</p>
+<p>If that were the case, bounties would just be immediately sucked dry by people pretending to fulfill them for themselves.</p>
+<p>What the fulfiller mask does is specific a certain set of identities which can fulfill requests, making it statistically improbable (more and more improbable as the number of checks goes up) that the chain of signatures is all completely faked.</p>
+<p>[2] </p>
+<h2 id="bounty-payout">Bounty Payout</h2>
+<p>In general, the goals for the reward system are to:</p>
+<ul>
+<li>Incentivize participation. It should make financial sense for people to make computers available to do work for the network.</li>
+<li>Disincentivize fraudulent activity. </li>
+</ul>
+<p>There's a couple ways this could go. The price of a bounty could be just based on the "cost" of a transaction:</p>
+<ul>
+<li>Number of chained parties</li>
+<li>Trustedness of chained parties</li>
+</ul>
+<p>Or, it could be a simple auction-based system, where a party makes a series of offers until one is accepted.</p>
+<p>Or, another possibility that's appealing to me is that you can actually buy tokens that are redeemable for specific services. So, I could purchase tokens and assign them for distributing, say, my album. These could potentially have built-in appreciation so that I could purchase in advance, say, 100 downloads a day. Then anyone could download those for free, literally for the rest of time.</p>
+<p>That, of course, opens up a some trouble. Namely: as a provider of that data, the incentive is for you to request those files yourself, and send them to yourself.</p>
+<p>So, in order to head that off, perhaps these incentives should be disbursed to people, not just for distributing the data, but for <em>being available</em> to distribute it.  So, people sign up for the pool, and whether or not the data is requested, the funds are disbursed to the pool.</p>
+<p>Of course, if you say you're available and you fail to deliver the data then you would be demoted from the pool, or dropped to a lower priced tier.</p>
+<h2 id="fraud-reporting">Fraud Reporting</h2>
+<p>If you got lucky and you controlled an identity that matched the fulfiller mask for a request you wanted to defraud, and you try to pass along fake data, what would happen?</p>
+<p>If the number of checks is low, it's possible you could get away with it. That's the downside of cheap/low-check bounties.</p>
+<p>But if another fulfiller saw your result broadcasted on the network and noticed that your result was wrong, they could then publish a fraud report to the network:</p>
+<pre><code>fraud {
+    result: 'f09a'
+} (signature ka02)
+</code></pre>
+<p>Other fulfillers could then verify the fraud report and add their own signatures. Once there were enough signatures the result would be considered fraudulent and it would go into the blockchain, where it would be verified by everyone:</p>
+<pre><code>fraud {
+    result: 'f09a',
+    signatures: ['ka02', 'gj01', 'fk01']
+}
+</code></pre>
+<p>Identities caught committing fraud would be knocked down to a lower level of the blocktree.</p>
+<p>try to pass along fake data, and and someone inside </p>
+<h2 id="expiration">Expiration</h2>
+<p>Just as fraud reports discourage people from sending bad information to try to get paid, expiration discourages people from sending good information to themselves to try to get paid.</p>
+<p>The way it works is that bounties are set to expire after a certain amount of time. If a request is made and fulfilled, a certain portion of the bounty is paid out and a part of it is returned to the identity that sponsored the bounty. </p>
+<p>But if the bounty expires before a request is made, <em>the entire bounty</em> is split amongst everyone who was prepared to fulfill the bounty. So if you want to fulfill the bounty, you broadcast your availability to the network and much of the time you can earn a payout without actually doing anything:</p>
+<pre><code>availability: {
+    program: '21/scots-proverbs',
+} (signature b0ba)
+</code></pre>
+<p>Of course, you could bluff and say you're prepared to fulfill the bounty without actually having any intention to do that. In order to prevent that, other miners could essentially call your bluff by requesting the program and then claiming a reward if you failed to broadcast a result:</p>
+<pre><code>request: {
+  program: '21/scots-proverbs',
+  checks: 1,
+  fulfiller: 'b0ba'
+
+  proverb: 7777
+} (signature dj91)
+</code></pre>
+<p>then some time later:</p>
+<pre><code>fraud {
+    type: 'non-availability',
+    availability: 'b0ba',
+    request: 'dj91'
+}
+</code></pre>
+<p>which would result in the fake fulfiller being demoted in the payout scheme.</p>
+<h2 id="endowments">Endowments</h2>
+<p>The Bitverse also has a kind of "financial API" which lets you give your money a life of it's own. For example you endow a "ver fountain" that gives a thousandth of the endowment to anyone who puts their wallet address into a document:</p>
+<pre><code>42/fountain-payout:
+
+function() {
+    var addresses = bitverse.readlines('12/fountain');
+    var payout = bitverse.balance() / 1000 / addresses.length;
+
+    var commands = addresses.map(function(address) {
+        return {
+            cmd: 'pay',
+            to: address,
+            amt: payout
+        };
+    };
+
+    commands.push({
+        cmd: 'write',
+        location: '12/fountain',
+        content: null
+    });
+
+    return commands;
+}
+</code></pre>
+<p>Then if you created a bounty that requrired a lot of checks[3]:</p>
+<pre><code>bounty: {
+  program: '42/fountain-payout',
+  root: 5,
+  checks: 10,
+  count: 100
+  expiration: 1440
+  inputs: [
+    {source: '91vv', amt: 79}
+  ],
+  payout: 9,
+}
+</code></pre>
+<p>Note this bounty has a <code>payout</code> property, which specifies how much of the inputs should go to pay out bounties.  The rest of the inputs are available <em>to the script</em>. Then, if someone signs the output of the script and it has some pay commands in it, the money will be transferred:</p>
+<pre><code>receipt: {
+    request: ...,
+    checks: ...,
+    commands: [
+        {
+            cmd: 'pay',
+            from: 'dj191',
+            to: 'k100',
+            amt: 4
+        }
+    ]
+    signatures: [commands signed by all the checkers],
+}
+</code></pre>
+<p>This is of course quite dangerous if you put your bounty in a less reliable branch of the blocktree. If you're only requiring a single confirmation on this bounty then someone could probably fairly easily nab your vers fraudulently. But if you require sufficient checks it should be, for all intents and purposes, un-spoof-able.</p>
+<p><small>[3] You'd also need a bounty to pay for all of the times 42/fountain-payout has to read from and write to 12/fountain. But that's left as an exercise for the reader.</small></p>
+<h2 id="micropayments">Micropayments</h2>
+<p>One could also just pay to seed a file to the network, and then let their audience pay for their own distribution. People could even pre-orderers:</p>
+<pre><code>bounty {
+    program: '59/eriks-zookeeper-lovemonster',
+    checks: 10,
+    inputs: [
+        {source: '0f00', amt: 1092}
+    ],
+    payout: 92,
+
+    audience: 'me',
+} (signature jj68)
+
+request {
+    program: '59/eriks-zookeeper-lovemonster',
+    checks: 10
+} (signed by the same private key as the bounty)
+</code></pre>
+<p>Note there is no expiration on the bounty. Then when the album was ready, the producer could just seed it to some of those pre-orderers: </p>
+<pre><code>result {
+    request: ...,
+    data: 'this is where the actual album data would go, 
+           but probably tacked on as a binary payload.'
+    by: 'eriks'
+} (signature 1dk0)
+</code></pre>
+<p>Then the pre-orderer can fulfill <em>other</em> pre-orderers, and those pre-orderers can fulfill <em>other</em> pre-orderers and the rest of the distribution happens within the network.</p>
+<p>But you will also notice the bounty only releases 92 of the 1092 vers provided. What this allows the program to do is pay itself some money. Effectively this let's the creator build in a price:</p>
+<pre><code>59/eriks-zookeeper-lovemonster:
+
+function() {
+
+    return {
+        payload: [somehow the data payload is attached],
+        commands: [{
+            cmd: 'pay',
+            to: 'j2ak',
+            amt: bitverse.balance()
+        }]
+    }
+}
+</code></pre>
+<h2 id="fulfiller-mask-difficulty">Fulfiller mask difficulty</h2>
+<p>Another possible way to achieve better durability without forcing the network to do lots of double-checks is by changing the specificity of the fulfiller mask. </p>
+<p>This could happen by varying the size of the fulfiller pool and the length of a mask-match that would be required. So if you didn't care so much about the reliability, you could just require the first letter in the mask match the fulfiller ID.  That would give an attacker a 1 in 36 chance of being able to fulfill a request fraudulently (assuming the masks are base 36).</p>
+<p>But if you required the first 3 letters of the mask to match the fulfiller, then that brings the probability a given attacker could defraud you down to one in 46 thousand.</p>
+<p>In order for this to work, these have to be limited somehow, so you can't just buy total coverage of the bitmask. OR maybe make the bitmask algorithm something that can't be predicted so even with an army of drone identities you still can only control your tiny fraction of the Bitverse enthalpy. And to commit fraud against even modestly redundant roots would require half of the network for a long time. (I think? hope?)</p>
+<h2 id="estimating-how-much-youll-need-to-pay">Estimating how much you'll need to pay</h2>
+<p>A useful program would be one that estimates how much jobs should cost:</p>
+<p>You could send an unsigned bounty to it, and it would send you back a list of probabilities:</p>
+<pre><code>request: {
+    program: '2/estimate',
+    ...
+    reliability: 0.85-0.95,
+    bounty: {
+        program: '21/scots-proverbs',
+        checks: 4,
+        count: 1,
+        ...
+    }
+}
+</code></pre>
+<p>The output of that program would be something like this:</p>
+<pre><code>reliabilities: [
+    {reliability: 0.9, price: 30, root: 113},
+    {reliability: 0.95, price: 45, root: 90}
+]
+</code></pre>
+<p>That would allow you to see how much money you'd need for a certain reliability. You could also leave out the reliability and provide a price range and find out what kind of reliability you can get for what you want to pay. I suspect that will be a common way to monetize "browsing". You just volunteer that every 10 seconds you'll pay for whatever you're looking at as long as it's under a certain amount... say, 1 ver.</p>
+<hr />
+<hr />
+<hr />
+<h1 id="older-stuff">Older stuff</h1>
+<p>A general principle for Bitver.se is that it provides vastness through infinite divisibility <em>not</em> expandability. The sensation of space comes from seeing a universe within a universe.</p>
+<h2 id="benefits">Benefits</h2>
+<ul>
+<li>Prepaid permanent data storage</li>
+<li>No trust required</li>
+<li>Scales to infinite size</li>
+<li>Always on, infinitely scaleable software services, prepaid until the end of time</li>
+<li>Unblockable services: if you describe it and fund it, it exists</li>
+</ul>
+<h2 id="keyspaces">Keyspaces</h2>
+<p>Keyspaces can be purchased, with a validation script attached. This script might only allow writes which...</p>
+<ul>
+<li>are signed with an indentity which has sent a certain amount of money to a specific address.</li>
+<li>which conform to the laws of physics in a game world</li>
+<li>which are 140 characters or less and put in sub-keyspaces (a la Twitter handles)</li>
+</ul>
+<p>It's really up to the purchaser. They could just throw an arbitrary javascript function into access.js at the root of their keyspace perhaps.</p>
+<p>Questions:</p>
+<ul>
+<li>It's not clear how the branches should be split up. Perhaps they can just branch arbitrarily and we let market forces prune them. </li>
+<li>Or maybe there's a way to allow for arbitrary precision and arbitrary branch sizes. So that the tree becomes a kind of a continuous data triangle.</li>
+</ul>
+<h2 id="anonymity">Anonymity</h2>
+<p>Ideally you could send data to another person and pay for it without the fact that you communicated with that person being discoverable by looking at the blockchain.</p>
+<p>To do this, creating a block may have to require each of the working parties presenting signed work, a third party then batching that work up into a block and divying out rewards, then each of the working parties signing off on the block (agreeing that the rewards are fairly calculated) and then (and only then) is the block valid and ready to be broadcast and written into the blockchain.</p>
+<p>Essentially, each block would be a tumbler.</p>
+<h2 id="possible-implemenation-technologies">Possible implemenation technologies</h2>
+<ul>
+<li><a href="http://www.webrtc.org/">WebRTC</a></li>
+</ul>
+<h2 id="related">Related</h2>
+<ul>
+<li>http://www.i2p2.de/</li>
+<li>https://gnunet.org</li>
+</ul>
+
+</body>
+</html>
