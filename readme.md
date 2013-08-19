@@ -431,9 +431,11 @@ Possible implemenation technologies
 Related
 -------
 
-* http://www.i2p2.de/
 * https://gnunet.org
+* http://en.wikipedia.org/wiki/Kademlia
 * https://bitmessage.org/wiki/Main_Page
+
+* http://www.i2p2.de
 * http://www.tixati.com/
 * http://sipdht.sourceforge.net/
 * http://jinroh.github.io/kadoh/
