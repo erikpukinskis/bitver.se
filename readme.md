@@ -1,7 +1,7 @@
 Bitver.se
 =========
 
-**is a distributed key/value store and compute engine.**
+**is a distributed trust-free application hosting protocol.**
 
 Let's say you want to provide a service that will give people a Scottish proverb. You compile a database of 10,000 proverbs and write a little program that gives you a proverb if you give it a number between 1 and 10,000:
 
