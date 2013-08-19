@@ -433,3 +433,10 @@ Related
 
 * http://www.i2p2.de/
 * https://gnunet.org
+* https://bitmessage.org/wiki/Main_Page
+* http://www.tixati.com/
+* http://sipdht.sourceforge.net/
+* http://jinroh.github.io/kadoh/
+* https://github.com/isaaczafuta/pydht
+* https://github.com/AArnott/IronPigeon
+* https://github.com/irungentoo/ProjectTox-Core
