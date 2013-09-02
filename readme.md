@@ -3,6 +3,9 @@ Bitver.se
 
 **is a distributed trust-free application hosting protocol.**
 
+Intro
+-----
+
 Let's say you want to provide a service that will give people a Scottish proverb. You compile a database of 10,000 proverbs and write a little program that gives you a proverb if you give it a number between 1 and 10,000:
 
     function(number) {
@@ -47,6 +50,36 @@ When you want to pay for something to happen, you just sign one of these, and br
 
 The Blocktree
 -------------
+
+*Why do we need a blocktree instead of just a blockchain?*
+
+Well, the idea is that every single user action is going into the tree, right? Every tweet, every favorite, every movement in a game world. And the way the blockchain works, every miner has to store the whole thing. It's just too much data.
+
+Even if we're not storing any real data, even if we're just storing metadata, it's still way too much. And in practice, much of the metadata will be just as big as the data. For stuff like movement, or tweets, or favorites, the data just isn't that big.
+
+So the idea is basically to shard it. A miner could find it lucrative just to host likes of photos in the keyspace from a8b-a8f, and that could be enough data to warrant an entire blockchain.
+
+One trouble with this is that because everything is sharded, it becomes trivially easy to brute force an attack on one of these "blockshards".
+
+This is somewhat solved by the fraud reporting. In principle all data is deterministic: you start with some set of inputs, and there are no side-effects; the inputs determine the outputs. So even if someone did brute force the data in one of these shards, you could go back and look at the computation and see if it was correct or not.  
+
+But if the difficulty is really low on these chains, you could also spoof the fraud reporting, so I think the reason for the blocktree is so that you can "escalate" truthmaking.
+
+So, let's say someone dumps a bunch of machines into a little blockshard containing a room in a game world and starts giving themselves lots of free stuff.
+
+Another miner could then escalate to the parent blockshard, which would be more durable, which I guess just means there are more checks required and the bounties are larger, which would attract more miners and make the difficulty higher. Really the important thing is that the difficulty is higher.
+
+Someone in that tree would then grab the relevant hashed data, verify the checksums, do the relevant calculations, and issue a ruling on whether it was valid or not. That would get broadcast and once it was included into a block, everyone would do the verification.
+
+It's sort of like appeals in the US judicial system.
+
+If there was actual fraud, the person who committed it could lose their reputation, which would hurt their ability to mine profitably. A fee could be exacted. If no fraud was found, the person reporting the fraud would have to pay.
+
+Then the blockchain in the lower shard would have to get rolled back somehow. Or the transactions would just be marked as invalid in a new block perhaps. More on this in *Fraud Reporting*.
+
+So in order to mine you have to store not only the relevant shard, but all of the shards above it. And periodically in order to verify fraud reports, you'd have to grab data from a lower shard. Although maybe that wouldn't even have to be verified... Maybe when a fraud investigation is done the blockchain just stores the signatures of the miners who signed off on it and the resolution, not the actual issues and data and such.
+
+---
 
 Every piece of information in the Bitverse lives in what looks like the roots of a tree. The very top of the root system, the big central trunk, is Branch 1. The branches below that are branches 2 and 3, and below those are 4, 5, 6, and 7.
 
@@ -193,6 +226,10 @@ Other fulfillers could then verify the fraud report and add their own signatures
 Identities caught committing fraud would be knocked down to a lower level of the blocktree.
 
 try to pass along fake data, and and someone inside 
+
+*Open issues*
+
+* How to resolve data consistency issues that arise when fraud 
 
 Expiration
 ----------
@@ -377,6 +414,15 @@ The output of that program would be something like this:
     ]
 
 That would allow you to see how much money you'd need for a certain reliability. You could also leave out the reliability and provide a price range and find out what kind of reliability you can get for what you want to pay. I suspect that will be a common way to monetize "browsing". You just volunteer that every 10 seconds you'll pay for whatever you're looking at as long as it's under a certain amount... say, 1 ver.
+
+Game World Time
+---------------
+
+There could be timing discrepancies, but not if you make everything truly deterministic. In a game world, for example, I could place a bomb not just in a location, but in a moment in time.  Other people could also try to put something else in that same spot in that same moment, or could try to put it *before*, but that would all get resolved in the blockchain. Whatever goes into a block first, wins.
+
+In that case, the miner/servers aren't so much running a simulation with a ticking clock, but instead are listening for events which could be happening at *any* time in the history of the game world, and deciding whether they could have happened. It's a 4d game world, and players are free to act whenever they like.
+
+Of course it might be practical to also allow miners to declare moments to have "passed" so the game world is just randomly changing because they went back in time and did something different. But that would be up to the game designer. And at least within a small window of the present, the world would have to be treated as 4d.
 
 Anonymity
 ---------
