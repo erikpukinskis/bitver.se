@@ -3,6 +3,21 @@ Bitver.se
 
 **is a distributed trust-free application hosting protocol.**
 
+Conventions
+-----------
+
+In this document most transactions will be of a form like this:
+
+    erik request: {
+        some: 1,
+        keys: 2,
+        ...
+    } (signature b1a1)
+
+The name (erik) is just shorthand for the public key that is signing the transaction, which acts as the identifier for the identity that's issuing the transaction. It's followed by the command (request) and then a JSON hash of the parameters for the request. It's followed by the signature for the transaction, which may be used to reference it later.
+
+Sometimes the name and/or signature is left out if they're not needed, but in practice every transaction would be signed.
+
 Intro
 -----
 
@@ -25,22 +40,25 @@ Bounties
       program: '21/scots-proverbs',
       branch: 113,
       checks: 1,
-      count: 100
+      cap: '100/day'
       expiration: 1440
+      payout: 0.01
       inputs: [
         {source: '91vv', amt: 79}
       ],      
-    }
+    } (signature gg98)
     
 A bouty just means you're putting up some money for the network to do something. The bounty has several required properties. 
 
-**program** is a reference to what you want people to do. In this you're asking for the `scots-proverbs` program. `21` is just a reference to where the program is stored. That's discussed in the "Blocktree" chapter later on.
+**program** is a reference to what you want people to do. In this you're asking for the `scots-proverbs` program. `21` is just a reference to where the program is stored. That's discussed in the "Blocktree" chapter later on. The root of the program can also be an identity, like `erik/scots-proverbs`.
 
 **branch** is a reference to where in the Blocktree the bounty can be fulfilled.
 
 **checks** is the number of times the results of the program need to be verified.
 
-**count** is how many times you're paying for the program to run.
+**cap** is how many times you're paying for the program to run in a given time period.
+
+**payout** is the payout per transaction. So the bounty will be spent at a rate of `payout` &times; `cap` per day.
 
 **expiration** is the number of minutes you want the bounty to run for.
 
@@ -77,7 +95,7 @@ If there was actual fraud, the person who committed it could lose their reputati
 
 Then the blockchain in the lower shard would have to get rolled back somehow. Or the transactions would just be marked as invalid in a new block perhaps. More on this in *Fraud Reporting*.
 
-So in order to mine you have to store not only the relevant shard, but all of the shards above it. And periodically in order to verify fraud reports, you'd have to grab data from a lower shard. Although maybe that wouldn't even have to be verified... Maybe when a fraud investigation is done the blockchain just stores the signatures of the miners who signed off on it and the resolution, not the actual issues and data and such.
+So in order to mine you have to store not only the relevant shard, but all of the shards above it. For that reason the tree probably can't be crazy deep? And periodically in order to verify fraud reports, you'd have to grab data from a lower shard? Although maybe that wouldn't even have to be verified... Maybe when a fraud investigation is done the blockchain just stores the signatures of the miners who signed off on it and the resolution, not the actual issues and data and such.
 
 ---
 
@@ -201,7 +219,28 @@ So, in order to head that off, perhaps these incentives should be disbursed to p
 
 Of course, if you say you're available and you fail to deliver the data then you would be demoted from the pool, or dropped to a lower priced tier.
 
+Clocking In
+-----------
 
+In order to disincentivize frivolous moving of data around just to earn out bounties, miners can "clock in" on a bounty and if no one makes any requests, the bounty will just be split between all of the clocked in miners:
+
+    tim clockin {
+        bounty: gg98,
+        duration: 60,
+    } (signature 01kr)
+
+Miners can, of course, claim they are available for bounties they have no intention of ever filling, but they could get caught with their pants down during a spot check.
+
+I'm not sure exactly how that would work, but perhaps a byproduct of the blockchain mining would be various bounties for spotchecks are issued:
+
+    spotcheck {
+        clockin: 01kr,
+        fulfiller: 'g0',
+    }
+
+At that point, someone whose public key was in the fulfiller mask could issue a request to tim, the normal way. If they got a proper response from tim they could sign it and they'd get a nice bonus.
+
+If no one claimed the spotcheck bonus, tim's reputation would take a hit. So it's risky claiming to be able to fulfill bounties that you can't actually fill. 
 
 Fraud Reporting
 ----------------
@@ -432,6 +471,12 @@ Ideally you could send data to another person and pay for it without the fact th
 To do this, creating a block may have to require each of the working parties presenting signed work, a third party then batching that work up into a block and divying out rewards, then each of the working parties signing off on the block (agreeing that the rewards are fairly calculated) and then (and only then) is the block valid and ready to be broadcast and written into the blockchain.
 
 Essentially, each block would be a tumbler.
+
+Random other stuff
+------------------
+
+Someone could DOS your storage by just requesting a file to run out the bounty before anyone else could. It would cost them bandwidth, but that's it. I guess you could always just pay for the data if you wanted it.
+
 
 ***
 ***
