@@ -472,10 +472,67 @@ To do this, creating a block may have to require each of the working parties pre
 
 Essentially, each block would be a tumbler.
 
-Random other stuff
-------------------
+DOS risks
+---------
 
 Someone could DOS your storage by just requesting a file to run out the bounty before anyone else could. It would cost them bandwidth, but that's it. I guess you could always just pay for the data if you wanted it.
+
+
+Virtual keys
+------------
+
+I wonder if we can just use an existing DHT, but allow for "virtual" keys. For example, you could store some javascript in `scots-proverbs` and you'd get the source code if you requested that key, but if you requested `javascript:scots-proverbs(10)` would return the 10th proverb. Or maybe it could just be like a bash script:
+
+    #!/bin/v8
+    export = function(i) {
+        ...
+    }
+
+And then you could just do `exec('scots-proverbs', [10])` or something.
+
+Or maybe there should be a full payload:
+
+    get('scots-proverbs', {
+        engine: 'javascript',
+        i: 10
+    })
+
+That way nodes can actively filter on whatever properties they care about. The keyspace could then just be something like
+
+    BASE_KEY?key1=val1&key2=val2
+    scots-proverbs?engine=javascript&i=10
+
+... with the params sorted or whatever. Or maybe the script it self could include its own specification for parameter encoding that would allow for optimal partitioning/routing of the keyspace, with a decoder for nodes to use.
+
+
+Outsourcing storage
+-----------------
+
+Maybe we can use something like Kademlia for storage, and all the bitverse blockchain has to store is probilities about inferences. So given `9jf9` is our Scots proverb generator, the Bitverse might just return something like this:
+
+    p(9jfp(4) => kad:4k0f) = 0.95
+    p(9jfp(4) => kad:gj0a) = 0.2
+    p(9jfp(4) => kad:2f0a) = 0.78
+
+... those values are the probabilities that the the correct solution to 9jfp(4) is stored in the respective addresses.
+
+That combined with the bounty system would do the trick. Interestingly, this would allow us to use http as well, or any protocol. Essentially, you post your bounty and lots of people could respond offering the data, the network would assign a probability to each, and then the client could voluntarily pay the bounty. So Bitverse would still need the following:
+
+ * Bounties
+ * Probability calculation
+ * Fraud reporting
+
+I think some form of reputation system would still be necessary, to calculate the probabilities. Probably with bounties offered to call servers on their bluffs.
+
+Essentially what this becomes then is a marketplace for asking questions and stating facts about the data space and the network. Instead of hitting gmail.com, I would simply ask for information about the whereabouts of my inbox, and the network would give me some likely places to look.
+
+So then truth in this context becomes the length of the longest chain, perhaps, built on that verification. Facts would start out with just a single verification, but maybe the blocktree helps here.... the mini-chains could be verified, and then that verification would be logged as a "fact" of its own in the higher level branch, etc on up the tree.
+
+The job of nodes at each level then is to try to prune off the least relible subbranches of the tree from their branch.
+
+One problem with this is that external references make it impossible for future nodes to verify whether caculations were done correctly. If I ask what the content of http://google.com is at 4:15pm, and someone posts it somewhere at 4:16pm, by 4:17pm the content might have changed.  The more ambitiously scoped version of Bitverse above would allow a stable hashed target for all inputs.
+
+Maybe the thing to do is just require people to provide hashes of the data they want computation on. Or just require it be stable over time, and have the processor hash the inputs, and then if the content changes, just consider the problem closed. Really the datastore should be immutable. That makes Kademlia a good fit because the data is all stored by its hash.
 
 
 ***
@@ -508,11 +565,13 @@ Keyspaces can be purchased, with a validation script attached. This script might
 
 It's really up to the purchaser. They could just throw an arbitrary javascript function into access.js at the root of their keyspace perhaps.
 
+
 Questions
 ---------
 
 * It's not clear how the branches should be split up. Perhaps they can just branch arbitrarily and we let market forces prune them. 
 * Or maybe there's a way to allow for arbitrary precision and arbitrary branch sizes. So that the tree becomes a kind of a continuous data triangle.
+
 
 Possible implemenation technologies
 -----------------------------------
